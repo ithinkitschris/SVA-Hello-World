@@ -2,7 +2,7 @@ import sys
 import random 
 import time
 
-# Player config. Only his items will be of use in this game.
+# Player config. Only items will be of use in this game.
 # Stone and Wood will be appended to "items" later on in the game
 # stone_count and wood_count will be called to print the amount the player currently has.
 player = { 
