@@ -2,34 +2,40 @@ import sys
 import random 
 import time
 
+# Player config. Only his items will be of use in this game.
+# Stone and Wood will be appended to "items" later on in the game
+# stone_count and wood_count will be called to print the amount the player currently has.
 player = { 
-    "name": "p1", 
-    "score": 0,
     "items" : ["[Shortsword]","[Pickaxe]","[Axe]"],
     "stone_count": 0,
     "wood_count": 0,
 }
 
+# Function to print text per character and to define the speed at which it prints out.
 def char_print(text, charDelay=0.025):
         for char in text:
             sys.stdout.write(char)
             sys.stdout.flush()
             time.sleep(charDelay)
 
+# Function that will be used for the entire game, calls on char_print and defines delay before the next line prints.
 def funky_print(text, delay=0.5):
     char_print(text + "\n")
     time.sleep(delay)
 
+# Function that is used for input. Also strips all letter cases from the player input to ensure it matches the boolean definition.
 def funky_input(text):
     funky_print(text)
     return input().strip().lower()
 
+# Praise be RNGesus
 def rollDice(minNum, maxNum):
     # any time a chance of something might happen, let's roll a die
     result = random.randint(minNum,maxNum)
     print ("You roll a: " + str(result) + " out of " + str(maxNum))
 
     return result
+
 
 def title():
     funky_print("Welcome to Terraria.",)
@@ -54,6 +60,7 @@ def groundRules():
         cmonMan()
         groundRules()
 
+# This function will be called throughout the game as the default fallback route should there be an errant input.
 def cmonMan():
     funky_print("Cmon man, you gotta respond with either 1 or 2, let's try again.")
 
@@ -62,7 +69,8 @@ def intro():
     funky_print("To your right you see \"Guide\".") 
     funky_print("He idly paces back and forth, surely he will be of help in the future.")
     inventory()
-    
+
+# This is a stage of the game that follows from above.    
 def inventory():
     funky_print("You check to see what you currently have on you\n")
     playerInput = funky_input("[1] Open Inventory\n" + "[2] Do Nothing\n")
@@ -87,12 +95,15 @@ def inventory():
         cmonMan()
         inventory()
 
-
 def inventoryOpen():
     funky_print("You open your inventory and see the following items: \n" + listInventory())
     funky_print("You feel well equipped as you buckle the flap of your rucksack",1)
     postIntro()
 
+# This is a function that will be called throughout the game to list what is currently in player["items"]
+# It starts off by removing Stone and Wood from the inventory.
+# Then it prints the inventory, and IF player has stone and wood which will mean the counts are > 0, it will append stone and wood
+# back to the inventory list but with the current count as a string. 
 def listInventory():
     items = player['items']
     
@@ -116,7 +127,8 @@ def postIntro():
     funky_print("You look around and find yourself surrounded by thick trees for miles.")
     funky_print("At your feet, there's hard rock")
     gatherMats()
-    
+
+# A simple function that calls upon the ['items'] that player has as defined at the beginning of the program. 
 def gatherMats():
     playerInput = funky_input("You reach for your\n\n" + "[1]" + player['items'][1] + "\n" + "[2]" + player['items'][2] + "\n")
     
@@ -132,7 +144,11 @@ def gatherMats():
     else: 
         cmonMan()
         gatherMats()
-        
+
+# A core mechanic of the game.
+# It starts off with an RNG that returns a value of 2-5.
+# The player will obtain 2-5 stone per attempt.
+# Upon obtaining stone, appends to ["items"] and also adds to ['stone_count']        
 def stoneMining():
     stone = random.randint(2,5)
     funky_print("Tic...",.7)
@@ -143,17 +159,22 @@ def stoneMining():
     player['stone_count'] += stone
     funky_print("You have a total of " + str(player['stone_count']) + " stone")
 
+    # This checks if the player chose to gather wood first, and forks out to provide slightly different options.
     if "[Wood]" in player['items']: 
         stoneMiningHaveWood()
 
+    # This assumes the player chose to mine stone first. 
     else:
         playerInput = funky_input("\n[1] Mine more Stone" + "\n[2] I'm done gathering Stone")
         if playerInput == "1":
             stoneMining()
 
+        # This returns the player to the choice to mine stone or chop wood.
         elif playerInput =="2":
             gatherMats()
 
+# This is the forked function that presents itself when the player possesses both stone and wood
+# and then provides options that would progress the game. 
 def stoneMiningHaveWood():
     playerInput = funky_input("\nIt seems like you have both Stone and Wood.\n" + \
             "\n[1] Mine more Stone" + "\n[2] Chop for more Wood" + \
@@ -173,6 +194,8 @@ def stoneMiningHaveWood():
         funky_print("You look within your rucksack and find" + listInventory())
         stoneMiningHaveWood()
 
+# Wood chopping mechanic of the game.
+# Follows the same logic as stone mining.
 def woodChopping():
     wood = random.randint(2,5)
     funky_print("Twack!",.7)
@@ -213,7 +236,7 @@ def woodChoppingHaveStone():
         funky_print("You look within your rucksack and find " + listInventory())
         woodChoppingHaveStone()
 
-
+# A derivative of listInventory() that just prints stone and wood instead of the entire inventory.
 def countMats():
     funky_print("You look within your rucksack and find a total of "+ \
         str(player['stone_count']) + " stone and "+ \
@@ -225,12 +248,12 @@ def haveStoneAndWood():
     funky_print("It is time to put them to good use.")
     postGatherMats()
 
-
 def postGatherMats():
     funky_print("You start to think of the logistics of building a shelter, " +\
         "and come to a realisation that you will require 5 stone and 15 wood.")
     postGatherMatsOpt()
 
+# The fork in the path for the second core mechanic of the game.
 def postGatherMatsOpt():
     playerInput = funky_input("\n[1] Build Shelter\n" + "[2] Check Inventory\n" + "[3] Gather more materials\n")
 
@@ -249,26 +272,41 @@ def postGatherMatsOpt():
         cmonMan()
         postGatherMats()
 
+# The second core mechanic of the game.
+# This function checks if the player has 5 stone and 15 wood.
 def buildShelter():
-
+    
+    # This checks if the player has sufficient stone but not enough wood.
     if player['stone_count'] >= 5 and player ['wood_count'] < 15:
         funky_print("With a slap to the forehead, you realise that you do not have enough resources to construct the shelter.")
+
+        # This then prints out exactly how much more wood the player requires.
         funky_print("You have enough stone but require " + \
             str(15 - player['wood_count']) + " more wood.")
+
+        # This returns the player back to the option of gathering materials.
         postGatherMatsOpt()
 
+    # This checks if the player has sufficient wood but not enough stone.
     elif player['stone_count'] < 5 and player ['wood_count'] >= 15:
         funky_print("With a slap to the forehead, you realise that you do not have enough resources to construct the shelter.")
+
+        # This then prints out exactly how much more stone the player requires.
         funky_print("You have enough wood but require " + \
             str(5 - player['stone_count']) + " more stone.")
+        
+        # This returns the player back to the option of gathering materials.
         postGatherMatsOpt()
 
+    # This checks if the player has both insufficient stone and wood.
     elif player['stone_count'] < 5 or player ['wood_count'] < 15:
         funky_print("With a slap to the forehead, you realise that you do not have enough resources to construct the shelter.")
         funky_print(str(5 - player['stone_count']) + " more stone and " + \
             str(15 - player['wood_count']) + " more wood is what you currently require.")
         postGatherMatsOpt()
 
+    # If all of the above are false, it means the player has enough stone and wood.
+    # Proceed to build.
     else:
         build()
 
@@ -287,12 +325,14 @@ def build():
         cmonMan()
         build()
 
+# A derivative of the char_print function but further delayed to represent the slow printing of the blocks.
 def char_print_build(text, charDelay=0.5):
     for char in text:
         sys.stdout.write(char)
         sys.stdout.flush()
         time.sleep(charDelay)
 
+# I'm done with this.
 def stoneBuild():
     char_print_build("■ ■ ■ ■ ■\n")
     funky_print("Well done! Consider the shelter well built with both you and \"Guide\"  having moved in and are safe from the surroundings and night.")
