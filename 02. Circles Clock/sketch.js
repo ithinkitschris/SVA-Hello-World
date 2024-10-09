@@ -28,7 +28,7 @@ let timeDiff = currentTime - lastTime;
 //Movement Logic
 circleY += (velocity / duration) * timeDiff;
 
-if (circleY >= height || circleY <= 0) {
+if (circleY >= windowHeight || circleY <= 0) {
   velocity *= -1;
   createCanvas(windowWidth, windowHeight);
   background("black");
